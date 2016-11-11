@@ -1,25 +1,27 @@
 # WildFly Continuous Deployment Package 
 
-#### 1 - Press Deploy button and choose a service provie at Jelasic Cloud Union.
+#### 1 - Press Deploy button 
+And choose a service provider after redirection to Jelasic Cloud Union.
 
 [![Deploy](https://github.com/jelastic-jps/git-push-deploy/raw/master/images/deploy-to-jelastic.png)](https://jelastic.com/install-application/?manifest=https://raw.githubusercontent.com/jelastic-jps/wildfly/master/manifest.jps) 
 
-#### 2 - Confirm installation. Here you can change your env name, it will be your application domain.
+#### 2 - Confirm installation 
+Here you can specify path to your git repo and change env name, it will be your application domain.
 
 <img src="images/wildfly-maven-git.png" width="500"/>
 
-#### 3 - Wait for successful deployment.
+#### 3 - Wait for successful deployment
 
 <img src="images/wildfly-successful-deployment.png" width="400"/>
 
-#### 4 - Wait while Maven downloads all dependencies based on your pom.xml. 
+#### 4 - Wait, Maven downloads dependencies 
 It takes much longer for the first time application deployment. You can check the status via Log button.  
 
 <img src="images/wildfly-deploy-logs.png" width="500"/>
 
 After this point your application should be deployed and ready to handle requests. 
 
-#### 5 - Open in browser.
+#### 5 - Open in browser
 
 <img src="images/wildfly-open-in-browser.png" width="500"/>
 
