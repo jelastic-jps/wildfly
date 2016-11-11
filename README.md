@@ -15,7 +15,7 @@ Here you can specify path to your git repo and change env name, it will be your 
 <img src="images/wildfly-successful-deployment.png" width="400"/>
 
 #### 4 - Wait, Maven downloads dependencies 
-It takes much longer for the first time application deployment. You can check the status via Log button.  
+The first time application deployment takes longer. You can check the status via Log button.  
 
 <img src="images/wildfly-deploy-logs.png" width="500"/>
 
