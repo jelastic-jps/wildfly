@@ -1,2 +1,2 @@
-# wildfly
-Wildly Deployment Scripts  
+# WildFly Deployment Package 
+
