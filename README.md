@@ -1,9 +1,9 @@
 # WildFly Continuous Deployment Package 
 
+#### 1 - Press Deploy button and choose a service provie at Jelasic Cloud Union.
+
 [![Deploy](https://github.com/jelastic-jps/git-push-deploy/raw/master/images/deploy-to-jelastic.png)](https://jelastic.com/install-application/?manifest=https://raw.githubusercontent.com/jelastic-jps/wildfly/master/manifest.jps) 
 
-
-#### 1 - Press Deploy button and choose a service provie at Jelasic Cloud Union.
 #### 2 - Confirm installation. Here you can change your env name, it will be your application domain.
 
 <img src="images/wildfly-maven-git.png" width="500"/>
