@@ -35,7 +35,7 @@
 		},
 		"onInstall": {
 			"execScript": {
-				"type": "js",
+  				"type": "js",
 				"script": "https://raw.githubusercontent.com/jelastic-jps/wildfly/master/scripts/add-public-git-repo.js",
 				"params": {
 					"name": "HelloWorld",
@@ -45,7 +45,7 @@
 			}
 		},
 		"success": {
-			"text": "Your WildFly Admin Console</br></br> <table style='font-size:13px; border: none;'><tr><td>URL:</td><td style='padding-left: 10px;'><a href='${env.protocol}://${env.domain}/console/' target='_blank'>${env.protocol}://${env.domain}/console/</a></td></tr>  <tr><td>Login:</td><td style='padding-left: 10px;'>admin</td></tr><tr><td>Password:</td><td style='padding-left: 10px;'>${user.appPassword}</td></tr></table></br>Please wait while we pull, build and deploy your project. The process may take several minutes before you get the application up and running."
+			"text": "Your WildFly Admin Console</br></br> <table style='font-size:13px; border: none;'><tr><td>URL:</td><td style='padding-left: 10px;'><a href='${env.protocol}://${env.domain}:4848/console/' target='_blank'>${env.protocol}://${env.domain}:4848/console/</a></td></tr>  <tr><td>Login:</td><td style='padding-left: 10px;'>admin</td></tr><tr><td>Password:</td><td style='padding-left: 10px;'>${user.appPassword}</td></tr></table></br>Please wait while we pull, build and deploy your project. The process may take several minutes before you get the application up and running."
 		}
 	}
 }
