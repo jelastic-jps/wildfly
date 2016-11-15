@@ -1,6 +1,6 @@
 {
 	"jpsType": "install",
-	"jpsVersion": "4.7",
+	"jpsVersion": "0.8",
 	"application": {
 		"logo": "https://github.com/jelastic-jps/wildfly/raw/master/images/wildfly-logo-70px.png",
 		"name": "WildFly + Maven + Git",
