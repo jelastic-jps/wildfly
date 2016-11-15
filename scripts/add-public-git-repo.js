@@ -14,7 +14,7 @@ var params = {
    keyId: null,
    login: null,
    password: null,
-   autoupdate: false,
+   autoupdate: true,
    interval: 1,
    autoResolveConflict: true
 }
