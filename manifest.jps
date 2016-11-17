@@ -29,19 +29,23 @@
 					"nodeType": "maven3",
 					"displayName": "Build Node"
 				}],
-                "ssl": true,
+				"ssl": true,
 				"engine": "java8"
 			}
 		},
 		"onInstall": {
 			"execScript": {
-  				"type": "js",
+				"type": "js",
 				"script": "https://raw.githubusercontent.com/jelastic-jps/wildfly/master/scripts/add-public-git-repo.js",
 				"params": {
 					"name": "HelloWorld",
 					"url": "${settings.repo}",
 					"branch": "master"
 				}
+			},
+			"execScript": {
+				"script": "return jelastic.env.control.ResetNodePasswordById('${env.envName}', session, ${nodes.cp.first.id}, '${nodes.cp.password}')",
+				"type": "js"
 			}
 		},
 		"success": {
