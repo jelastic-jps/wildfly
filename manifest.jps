@@ -1,56 +1,70 @@
 {
-	"jpsType": "install",
-	"jpsVersion": "0.8",
-	"application": {
-		"id": "wildfly+maven+git",
-		"logo": "https://github.com/jelastic-jps/wildfly/raw/master/images/wildfly-logo-70px.png",
-		"name": "WildFly + Maven + Git",
-		"description": "The package automatically installs WildFly 10 and Maven 3, connects them to each other and integrate public Git repo for continuous deployment. Additional automation options like triggered deployments, auto clustering and auto scaling are available at info@jelastic.com.",
-		"settings": {
-			"fields": [{
-				"name": "repo",
-				"caption": "Git Public Repo URL",
-				"type": "string",
-				"inputType": "string",
-				"default": "https://github.com/jelastic/HelloWorld.git",
-				"required": "true"
-			}]
-		},
-		"env": {
-			"topology": {
-				"nodes": [{
-					"cloudlets": 16,
-					"nodeGroup": "cp",
-					"nodeType": "wildfly10",
-					"displayName": "App Server"
-				}, {
-					"cloudlets": 32,
-					"nodeGroup": "build",
-					"nodeType": "maven3",
-					"displayName": "Build Node"
-				}],
-				"ssl": true,
-				"engine": "java8"
-			}
-		},
-		"onInstall": [{
-			"execScript": {
-				"type": "js",
-				"script": "https://raw.githubusercontent.com/jelastic-jps/wildfly/master/scripts/add-public-git-repo.js",
-				"params": {
-					"name": "HelloWorld",
-					"url": "${settings.repo}",
-					"branch": "master"
-				}
-			}
-		}, {
-			"execScript": {
-				"script": "return jelastic.env.control.ResetNodePasswordById('${env.envName}', session, ${nodes.cp.first.id}, '${nodes.cp.password}')",
-				"type": "js"
-			}
-		}],
-		"success": {
-			"text": "Your WildFly Admin Console</br></br> <table style='font-size:13px; border: none;'><tr><td>URL:</td><td style='padding-left: 10px;'><a href='${env.protocol}://${env.domain}:4848/console/' target='_blank'>${env.protocol}://${env.domain}:4848/console/</a></td></tr>  <tr><td>Login:</td><td style='padding-left: 10px;'>admin</td></tr><tr><td>Password:</td><td style='padding-left: 10px;'>${nodes.cp.password}</td></tr></table></br>Please wait while we pull, build and deploy your project. The process may take several minutes before you get the application up and running."
-		}
-	}
+  "jpsType": "install",
+  "jpsVersion": "0.8",
+  "application": {
+    "logo": "https://github.com/jelastic-jps/wildfly/raw/master/images/wildfly-logo-70px.png",
+    "name": "WildFly Continuous Deployment",
+    "categories": [
+      "apps/dev-and-admin-tools"
+    ],
+    "homepage": "https://github.com/jelastic-jps/wildfly",
+    "description": {
+      "text": "The package automatically installs WildFly 10 and Maven 3, connects them to each other and integrate public Git repo for continuous deployment. Additional automation options like triggered deployments, auto clustering and auto scaling are available at info@jelastic.com.",
+      "short": "Continuous Deployment option for WildFly to automatically integrate projects from Git SVN."
+    },
+    "settings": {
+      "fields": [
+        {
+          "name": "repo",
+          "caption": "Git Public Repo URL",
+          "type": "string",
+          "inputType": "string",
+          "default": "https://github.com/jelastic/HelloWorld.git",
+          "required": "true"
+        }
+      ]
+    },
+    "env": {
+      "topology": {
+        "nodes": [
+          {
+            "cloudlets": 16,
+            "nodeGroup": "cp",
+            "nodeType": "wildfly10",
+            "displayName": "App Server"
+          },
+          {
+            "cloudlets": 32,
+            "nodeGroup": "build",
+            "nodeType": "maven3",
+            "displayName": "Build Node"
+          }
+        ],
+        "ssl": true,
+        "engine": "java8"
+      }
+    },
+    "onInstall": [
+      {
+        "execScript": {
+          "type": "js",
+          "script": "https://raw.githubusercontent.com/jelastic-jps/wildfly/master/scripts/add-public-git-repo.js",
+          "params": {
+            "name": "HelloWorld",
+            "url": "${settings.repo}",
+            "branch": "master"
+          }
+        }
+      },
+      {
+        "execScript": {
+          "script": "return jelastic.env.control.ResetNodePasswordById('${env.envName}', session, ${nodes.cp.first.id}, '${nodes.cp.password}')",
+          "type": "js"
+        }
+      }
+    ],
+    "success": {
+      "text": "Your WildFly Admin Console</br></br> <table style='font-size:13px; border: none;'><tr><td>URL:</td><td style='padding-left: 10px;'><a href='${env.protocol}://${env.domain}:4848/console/' target='_blank'>${env.protocol}://${env.domain}:4848/console/</a></td></tr>  <tr><td>Login:</td><td style='padding-left: 10px;'>admin</td></tr><tr><td>Password:</td><td style='padding-left: 10px;'>${nodes.cp.password}</td></tr></table></br>Please wait while we pull, build and deploy your project. The process may take several minutes before you get the application up and running."
+    }
+  }
 }
