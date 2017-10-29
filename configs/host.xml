@@ -82,17 +82,7 @@
         </jvm>
     </jvms>
     <servers>
-        <server name="server-one" group="main-server-group" auto-start="true">
-            <!--
-              ~  Remote JPDA debugging for a specific server
-              ~             <jvm name="default">
-              ~               <jvm-options>
-              ~                 <option value="-agentlib:jdwp=transport=dt_socket,address=8787,server=y,suspend=n"/>
-              ~               </jvm-options>
-              ~            </jvm>
-              ~            
-              -->
-        </server>
+        <server name="server-one" group="main-server-group" auto-start="true"/>
     </servers>
     <profile>
         <subsystem xmlns="urn:jboss:domain:jmx:1.3">
