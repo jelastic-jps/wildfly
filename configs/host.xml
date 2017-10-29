@@ -82,7 +82,7 @@
         </jvm>
     </jvms>
     <servers>
-        <server name="server-one" group="main-server-group" auto-start="true"/>
+        <server name="worker" group="main-server-group" auto-start="true"/>
     </servers>
     <profile>
         <subsystem xmlns="urn:jboss:domain:jmx:1.3">
