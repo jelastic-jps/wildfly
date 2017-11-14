@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 
-<host xmlns="urn:jboss:domain:4.2" name="master">
+<host xmlns="urn:jboss:domain:4.2" name="controller">
     <extensions>
         <extension module="org.jboss.as.jmx"/>
     </extensions>
@@ -81,9 +81,7 @@
             </jvm-options>
         </jvm>
     </jvms>
-    <servers>
-        <server name="worker" group="main-server-group" auto-start="true"/>
-    </servers>
+    <servers/>
     <profile>
         <subsystem xmlns="urn:jboss:domain:jmx:1.3">
             <expose-resolved-model/>
