@@ -1,0 +1,79 @@
+{
+    "jpsType": "install",
+    "jpsVersion": "0.99",
+    "name": "WildFly Cluster",
+    "logo": "https://goo.gl/epR2KT",
+    "id": "wildfly-cluster",
+    "description": {
+        "short": "WildFly Cluster",
+        "text": "WildFly Cluster"
+    },
+    "baseUrl": "https://raw.githubusercontent.com/siruslan/wildfly/master",
+    "globals": {},
+    "nodes": [{
+        "image": "devbeta/wildfly:10.1.0.Final",
+        "displayName": "Worker",
+        "count": "1",
+        "cloudlets": 16,
+        "nodeGroup": "cp"
+    }],
+    "onInstall": [],
+    "onBeforeServiceScaleOut[cp]": [{
+        "if (!nodes.ctrl)": [{
+            "addNodes": {
+                "fixedCloudlets": "${nodes.cp.first.fixedCloudlets}",
+                "flexibleCloudlets": 16,
+                "displayName": "Controller",
+                "nodeType": "docker",
+                "nodeGroup": "ctrl",
+                "dockerName": "${nodes.cp.first.customitem.dockerName}",
+                "dockerTag": "${nodes.cp.first.customitem.dockerTag}",
+                "metadata": {
+                    "layer": "ctrl"
+                },
+                "dockerEnvVars": {
+                    "CTRL": "true"
+                }
+            }
+        }, {
+            "script": [
+                "var resp = jelastic.environment.control.GetEnvInfo('${env.envName}', session)",
+                "if (resp.result != 0) return resp",
+                "for (var i = 0, node; node = resp.nodes[i]; i++) {",
+                "  if (node.nodeGroup == 'ctrl' && node.ismaster) {",
+                "    return { result: 0, onAfterReturn : {setupCtrl: {ctrlNodeId: node.id}}}",
+                "  }",
+                "}"
+            ]
+        }]
+    }],
+    "actions": {
+        "setupCtrl": [{
+                "linkLayers": {
+                    "ctrlNodeId": "${this.ctrlNodeId}"
+                }
+            },
+            "restartContainers[cp]"
+        ],
+        "linkLayers": {
+            "forEach(nodes.cp)": {
+                "api": "env.control.LinkDockerNodes",
+                "sourceNodeId": "${this.ctrlNodeId}",
+                "targetNodeId": "${@i.id}",
+                "groupAlias": "ctrl",
+                "alias": "ctrl"
+            }
+        },
+        "cmdViaApiById": {
+            "api": "env.control.ExecCmdById",
+            "nodeId": "${this.nodeId}",
+            "commandList": [{
+                "command": "${this.command}"
+            }]
+        }
+    },
+    "success": {
+        "text": "[Admin Console](http://node${nodes.ctrl.first.id}-${env.domain}:9990)\nAdmin User: admin\nPassword: ${globals.adminPswd}",
+        "email": "[Admin Console](http://node${nodes.ctrl.first.id}-${env.domain}:9990)\nAdmin User: admin\nPassword: ${globals.adminPswd}"
+    }
+}
