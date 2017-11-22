@@ -12,13 +12,6 @@
     "baseUrl": "https://raw.githubusercontent.com/siruslan/wildfly/master",
     "onInstall": [{
         "if (!nodes.ctrl && nodes.cp.length > 1)": "buildCluster"
-    }, {
-        "forEach(nodes.cp)": {
-            "updateLink2CtrlConsole": {
-                "nodeId": "${@i.id}",
-                "ctrlNodeId": "${nodes.ctrl.first.id}"
-            }
-        }
     }],
     "onBeforeServiceScaleOut[cp]": [{
         "if (!nodes.ctrl)": "buildCluster"
@@ -55,6 +48,13 @@
         "setupCtrl": [{
                 "linkLayers": {
                     "ctrlNodeId": "${this.ctrlNodeId}"
+                }
+            }, {
+                "forEach(nodes.cp)": {
+                    "updateLink2CtrlConsole": {
+                        "nodeId": "${@i.id}",
+                        "ctrlNodeId": "${this.ctrlNodeId}"
+                    }
                 }
             },
             "restartContainers[cp]"
