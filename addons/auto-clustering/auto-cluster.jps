@@ -1,5 +1,5 @@
 {
-    "jpsType": "install",
+    "jpsType": "update",
     "jpsVersion": "0.99",
     "name": "WildFly Cluster",
     "logo": "https://goo.gl/epR2KT",
@@ -8,18 +8,17 @@
         "short": "WildFly Cluster",
         "text": "WildFly Cluster"
     },
+    "globals": {
+    },
     "baseUrl": "https://raw.githubusercontent.com/siruslan/wildfly/master",
-    "globals": {},
-    "nodes": [{
-        "image": "devbeta/wildfly:10.1.0.Final",
-        "displayName": "Worker",
-        "count": "1",
-        "cloudlets": 16,
-        "nodeGroup": "cp"
+    "onInstall": [{
+        "if (!nodes.ctrl} && nodes.cp.length > 1)": "buildCluster"
     }],
-    "onInstall": [],
     "onBeforeServiceScaleOut[cp]": [{
-        "if (!nodes.ctrl)": [{
+        "if (!nodes.ctrl)": "buildCluster"
+    }],
+    "actions": {
+        "buildCluster": [{
             "addNodes": {
                 "fixedCloudlets": "${nodes.cp.first.fixedCloudlets}",
                 "flexibleCloudlets": 16,
@@ -45,9 +44,7 @@
                 "  }",
                 "}"
             ]
-        }]
-    }],
-    "actions": {
+        }],
         "setupCtrl": [{
                 "linkLayers": {
                     "ctrlNodeId": "${this.ctrlNodeId}"
