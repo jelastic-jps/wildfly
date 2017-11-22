@@ -1,18 +1,24 @@
 {
     "jpsType": "update",
     "jpsVersion": "0.99",
-    "name": "WildFly Cluster",
+    "name": "WildFly Auto-Cluster",
     "logo": "https://goo.gl/epR2KT",
     "id": "wildfly-cluster",
     "description": {
-        "short": "WildFly Cluster",
-        "text": "WildFly Cluster"
+        "short": "WildFly Auto-Cluster",
+        "text": "WildFly Auto-Cluster"
     },
-    "globals": {
-    },
+    "globals": {},
     "baseUrl": "https://raw.githubusercontent.com/siruslan/wildfly/master",
     "onInstall": [{
         "if (!nodes.ctrl && nodes.cp.length > 1)": "buildCluster"
+    }, {
+        "forEach(nodes.cp)": {
+            "updateLink2CtrlConsole": {
+                "nodeId": "${@i.id}",
+                "ctrlNodeId": "${nodes.ctrl.first.id}"
+            }
+        }
     }],
     "onBeforeServiceScaleOut[cp]": [{
         "if (!nodes.ctrl)": "buildCluster"
@@ -67,6 +73,12 @@
             "commandList": [{
                 "command": "${this.command}"
             }]
+        },
+        "updateLink2CtrlConsole": {
+            "cmdViaApiById": {
+                "nodeId": "${this.nodeId}",
+                "command": "sed -i 's#/console#https://node${this.ctrlNodeId}-${env.domain}/console#g' ${STACK_PATH}/welcome-content/index.html"
+            }
         }
     },
     "success": {
