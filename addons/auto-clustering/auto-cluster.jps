@@ -5,8 +5,8 @@
     "logo": "https://goo.gl/epR2KT",
     "id": "wildfly-cluster",
     "description": {
-        "short": "WildFly Auto-Cluster",
-        "text": "WildFly Auto-Cluster"
+        "short": "WildFly Auto-Cluster (Beta)",
+        "text": "WildFly Auto-Cluster (Beta)"
     },
     "globals": {},
     "baseUrl": "https://raw.githubusercontent.com/siruslan/wildfly/master",
@@ -23,6 +23,7 @@
     "onBeforeServiceScaleOut[cp]": [{
         "if (!nodes.ctrl)": "buildCluster"
     }],
+    "onAfterClone": "restartContainers[cp]",
     "actions": {
         "buildCluster": [{
             "addNodes": {
