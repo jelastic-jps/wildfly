@@ -12,7 +12,7 @@
     },
     "baseUrl": "https://raw.githubusercontent.com/siruslan/wildfly/master",
     "onInstall": [{
-        "if (!nodes.ctrl} && nodes.cp.length > 1)": "buildCluster"
+        "if (!nodes.ctrl && nodes.cp.length > 1)": "buildCluster"
     }],
     "onBeforeServiceScaleOut[cp]": [{
         "if (!nodes.ctrl)": "buildCluster"
