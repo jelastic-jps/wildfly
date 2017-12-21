@@ -1,0 +1,104 @@
+{
+    "jpsType": "update",
+    "jpsVersion": "0.99",
+    "name": "WildFly Auto-Cluster",
+    "logo": "https://goo.gl/epR2KT",
+    "id": "wildfly-cluster",
+    "description": {
+        "short": "WildFly Auto-Cluster (Beta)",
+        "text": "WildFly Auto-Cluster (Beta)"
+    },
+    "globals": {
+        "workerUser": "worker",
+        "workerPswd": "${fn.password}"
+    },
+    "baseUrl": "https://raw.githubusercontent.com/jelastic-jps/wildfly/master",
+    "onInstall": [{
+        "if (!nodes.ctrl && nodes.cp.length > 1)": "buildCluster"
+    }],
+    "onBeforeServiceScaleOut[cp]": [{
+        "if (!nodes.ctrl)": "buildCluster"
+    }],
+    "onAfterClone": "restartContainers[cp]",
+    "actions": {
+        "buildCluster": [{
+            "addNodes": {
+                "fixedCloudlets": "${nodes.cp.first.fixedCloudlets}",
+                "flexibleCloudlets": 16,
+                "displayName": "Controller",
+                "nodeType": "docker",
+                "nodeGroup": "ctrl",
+                "dockerName": "${nodes.cp.first.customitem.dockerName}",
+                "dockerTag": "${nodes.cp.first.customitem.dockerTag}",
+                "metadata": {
+                    "layer": "ctrl"
+                },
+                "dockerEnvVars": {
+                    "CTRL": "true",
+                    "WORKER_USER": "${globals.workerUser}",
+                    "WORKER_PASSWORD": "${globals.workerPswd}"
+                }
+            }
+        }, {
+            "script": [
+                "var resp = jelastic.environment.control.GetEnvInfo('${env.envName}', session)",
+                "if (resp.result != 0) return resp",
+                "for (var i = 0, node; node = resp.nodes[i]; i++) {",
+                "  if (node.nodeGroup == 'ctrl' && node.ismaster) {",
+                "    return { result: 0, onAfterReturn : {setupCtrl: {ctrlNodeId: node.id}}}",
+                "  }",
+                "}"
+            ]
+        }],
+        "setupCtrl": [{
+                "addWokerUser": {
+                    "ctrlNodeId": "${this.ctrlNodeId}"
+                }
+            }, {
+                "linkLayers": {
+                    "ctrlNodeId": "${this.ctrlNodeId}"
+                }
+            }, {
+                "forEach(nodes.cp)": {
+                    "updateLink2CtrlConsole": {
+                        "nodeId": "${@i.id}",
+                        "ctrlNodeId": "${this.ctrlNodeId}"
+                    }
+                }
+            },
+            "restartContainers[cp]"
+        ],
+        "addWokerUser": {
+            "cmdViaApiById": {
+                "nodeId": "${this.ctrlNodeId}",
+                "command": "$STACK_PATH/bin/add-user.sh $WORKER_USER $WORKER_PASSWORD"
+            }
+        },
+        "linkLayers": {
+            "forEach(nodes.cp)": {
+                "api": "env.control.LinkDockerNodes",
+                "sourceNodeId": "${this.ctrlNodeId}",
+                "targetNodeId": "${@i.id}",
+                "groupAlias": "ctrl",
+                "alias": "ctrl"
+            }
+        },
+        "cmdViaApiById": {
+            "api": "env.control.ExecCmdById",
+            "nodeId": "${this.nodeId}",
+            "commandList": [{
+                "command": "${this.command}"
+            }]
+        },
+        "updateLink2CtrlConsole": {
+            "cmdViaApiById": {
+                "nodeId": "${this.nodeId}",
+                "command": "sed -i 's#/console#https://node${this.ctrlNodeId}-${env.domain}/console#g' ${STACK_PATH}/welcome-content/index.html"
+            }
+        }
+    },
+    "success": {
+        "text": "[Admin Console](http://node${nodes.ctrl.first.id}-${env.domain}:9990)\nAdmin User: admin\nPassword: ${globals.adminPswd}",
+        "email": "[Admin Console](http://node${nodes.ctrl.first.id}-${env.domain}:9990)\nAdmin User: admin\nPassword: ${globals.adminPswd}"
+    }
+}
