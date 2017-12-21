@@ -12,7 +12,7 @@
         "workerUser": "worker",
         "workerPswd": "${fn.password}"
     },
-    "baseUrl": "https://raw.githubusercontent.com/siruslan/wildfly/master",
+    "baseUrl": "https://raw.githubusercontent.com/jelastic-jps/wildfly/master",
     "onInstall": [{
         "if (!nodes.ctrl && nodes.cp.length > 1)": "buildCluster"
     }],
