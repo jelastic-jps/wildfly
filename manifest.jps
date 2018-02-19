@@ -1,6 +1,6 @@
 {
   "jpsType": "install",
-  "jpsVersion": "0.8",
+  "jpsVersion": "0.9",
   "application": {
     "logo": "https://github.com/jelastic-jps/wildfly/raw/master/images/wildfly-logo-70px.png",
     "name": "WildFly Continuous Deployment",
