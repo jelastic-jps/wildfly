@@ -28,13 +28,13 @@
       "topology": {
         "nodes": [
           {
-            "cloudlets": 16,
+            "cloudlets": 8,
             "nodeGroup": "cp",
             "nodeType": "wildfly10",
             "displayName": "App Server"
           },
           {
-            "cloudlets": 32,
+            "cloudlets": 8,
             "nodeGroup": "build",
             "nodeType": "maven3",
             "displayName": "Build Node"
