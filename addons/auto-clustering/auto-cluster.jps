@@ -1,100 +1,144 @@
-{
-    "jpsType": "update",
-    "jpsVersion": "0.99",
-    "name": "WildFly Auto-Cluster",
-    "logo": "https://goo.gl/epR2KT",
-    "id": "wildfly-cluster",
-    "description": {
-        "short": "WildFly Auto-Cluster (Beta)",
-        "text": "WildFly Auto-Cluster (Beta)"
-    },
-    "globals": {
-        "workerUser": "worker",
-        "workerPswd": "${fn.password}"
-    },
-    "baseUrl": "https://raw.githubusercontent.com/jelastic-jps/wildfly/master",
-    "onInstall": [{
-        "if (!nodes.ctrl && nodes.cp.length > 1)": "buildCluster"
-    }],
-    "onBeforeServiceScaleOut[cp]": [{
-        "if (!nodes.ctrl)": "buildCluster"
-    }],
-    "onAfterClone": "restartContainers[cp]",
-    "actions": {
-        "buildCluster": [{
-            "addNodes": {
-                "fixedCloudlets": "${nodes.cp.first.fixedCloudlets}",
-                "flexibleCloudlets": 16,
-                "displayName": "Controller",
-                "nodeType": "docker",
-                "nodeGroup": "ctrl",
-                "dockerName": "${nodes.cp.first.customitem.dockerName}",
-                "dockerTag": "${nodes.cp.first.customitem.dockerTag}",
-                "metadata": {
-                    "layer": "ctrl"
-                },
-                "dockerEnvVars": {
-                    "CTRL": "true",
-                    "WORKER_USER": "${globals.workerUser}",
-                    "WORKER_PASSWORD": "${globals.workerPswd}"
-                }
-            }
-        }, {
-            "script": [
-                "var resp = jelastic.environment.control.GetEnvInfo('${env.envName}', session)",
-                "if (resp.result != 0) return resp",
-                "for (var i = 0, node; node = resp.nodes[i]; i++) {",
-                "  if (node.nodeGroup == 'ctrl' && node.ismaster) {",
-                "    return { result: 0, onAfterReturn : {setupCtrl: {ctrlNodeId: node.id}}}",
-                "  }",
-                "}"
-            ]
-        }],
-        "setupCtrl": [{
-                "addWokerUser": {
-                    "ctrlNodeId": "${this.ctrlNodeId}"
-                }
-            }, {
-                "linkLayers": {
-                    "ctrlNodeId": "${this.ctrlNodeId}"
-                }
-            }, {
-                "forEach(nodes.cp)": {
-                    "updateLink2CtrlConsole": {
-                        "nodeId": "${@i.id}",
-                        "ctrlNodeId": "${this.ctrlNodeId}"
-                    }
-                }
-            },
-            "restartContainers[cp]"
-        ],
-        "addWokerUser": {
-            "cmdViaApiById": {
-                "nodeId": "${this.ctrlNodeId}",
-                "command": "$STACK_PATH/bin/add-user.sh $WORKER_USER $WORKER_PASSWORD"
-            }
-        },
-        "linkLayers": {
-            "forEach(nodes.cp)": {
-                "api": "env.control.LinkDockerNodes",
-                "sourceNodeId": "${this.ctrlNodeId}",
-                "targetNodeId": "${@i.id}",
-                "groupAlias": "ctrl",
-                "alias": "ctrl"
-            }
-        },
-        "cmdViaApiById": {
-            "api": "env.control.ExecCmdById",
-            "nodeId": "${this.nodeId}",
-            "commandList": [{
-                "command": "${this.command}"
-            }]
-        },
-        "updateLink2CtrlConsole": {
-            "cmdViaApiById": {
-                "nodeId": "${this.nodeId}",
-                "command": "sed -i 's#/console#https://node${this.ctrlNodeId}-${env.domain}/console#g' ${STACK_PATH}/welcome-content/index.html"
-            }
-        }
-    }
-}
+---
+jpsType: update
+jpsVersion: 0.99
+name: WildFly Auto-Cluster
+logo: https://goo.gl/epR2KT
+id: wildfly-cluster
+description:
+  short: WildFly Auto-Cluster
+  
+globals:
+  workerUser: worker
+  workerPswd: ${fn.password}
+  
+baseUrl: https://raw.githubusercontent.com/jelastic-jps/wildfly/master/addons/auto-clustering
+
+nodeGroupAlias:
+  ${targetNodes.nodeGroup}: cp
+
+onInstall:
+  install:
+    settings:
+      masterId: ${nodes.cp.master.id}
+    jps:
+      type: update
+      name: Wildfly Auto-Cluster
+      envName: ${env.envName}
+      
+      nodeGroupAlias:
+        ${targetNodes.nodeGroup}: cp
+  
+      onInstall:
+      - if (nodes.ctrl && nodes.cp.length > 1):
+        - setRedirectToController
+        - forEach(wnode:nodes.cp):
+            cmd[${@wnode.id}]: sed -i "s#http://node.*/console#http://node${nodes.ctrl.master.id}-${env.domain}/console#g" ${STACK_PATH}/welcome-content/index.html
+      - if (!nodes.ctrl && nodes.cp.length > 1):
+        - buildCluster: 
+            migrate: false
+
+      onAfterRedeployContainer[cp]:
+      - cmd[cp]: sudo service wildfly restart
+      - setRedirectToController
+      - if (nodes.ctrl): setJavaMemoryOpts
+  
+      onBeforeServiceScaleOut[cp]:
+      - if (!nodes.ctrl):
+        - saveDatasources
+        - buildCluster: 
+            migrate: true
+
+      onAfterServiceScaleOut[cp]:
+      - cmd[cp]: sudo service wildfly restart
+      - forEach(wnode:nodes.cp):
+          updateLink2CtrlConsole:
+            nodeId: ${@wnode.id}
+            ctrlNodeId: ${nodes.ctrl.master.id}
+      - setNodeDisplayName[cp]: Worker
+      - if (nodes.ctrl): setJavaMemoryOpts
+  
+      onAfterSetCloudletCount[cp]:
+        if (nodes.ctrl): setJavaMemoryOpts
+  
+      onAfterResetNodePassword[cp]:
+        if (nodes.ctrl): addAdminUser
+  
+      actions:
+        setJavaMemoryOpts:
+          cmd[${nodes.cp.master.id}]: sudo domainMemoryConfig
+  
+        migrateToDomain:
+          cmd[${nodes.cp.master.id}]: sudo restoreDatasources; sudo migrateDeployments;
+  
+        saveDatasources:
+          cmd[${nodes.cp.master.id}]: sudo saveDatasources;
+  
+        buildCluster:
+        - addNodes:
+            fixedCloudlets: ${nodes.cp.master.fixedCloudlets}
+            flexibleCloudlets: 6
+            displayName: Controller
+            nodeType: docker
+            nodeGroup: ctrl
+            dockerName: ${nodes.cp.master.customitem.dockerName}
+            dockerTag: ${nodes.cp.master.customitem.dockerTag}
+            metadata:
+              layer: ctrl
+            dockerEnvVars:
+              CTRL: 'true'
+              WORKER_USER: ${globals.workerUser}
+              WORKER_PASSWORD: ${globals.workerPswd}
+              JBOSS_MODE: domain
+              JELASTIC_EXPOSE: 4949
+  
+        - api: env.control.SetNodeGroupDisplayName
+          nodeGroup: ctrl
+          displayName: Domain Controller
+  
+        - api: env.control.SetNodeGroupDisplayName
+          nodeGroup: cp
+          displayName: Workers
+
+        - setupCtrl
+        - addAdminUser
+        - setNodeDisplayName[cp]: Worker
+        - if (${this.migrate}): migrateToDomain
+        - setJavaMemoryOpts
+
+        setupCtrl:
+        - addWokerUser:
+          ctrlNodeId: ${nodes.ctrl.master.id}
+        - linkLayers:
+            ctrlNodeId: ${nodes.ctrl.master.id}
+        - forEach(wnode:nodes.cp):
+            updateLink2CtrlConsole:
+              nodeId: ${@wnode.id}
+              ctrlNodeId: ${nodes.ctrl.master.id}
+        - cmd[cp]: sudo service wildfly restart
+        - setRedirectToController
+
+        addWokerUser:
+          cmd[${nodes.ctrl.master.id}]: $STACK_PATH/bin/add-user.sh $WORKER_USER $WORKER_PASSWORD 2>&1
+              
+        addAdminUser:
+          script: ${baseUrl}/scripts/setAdminPassword.js?_r=${fn.random}
+  
+        linkLayers:
+          forEach(wnode:nodes.cp):
+            api: env.control.LinkDockerNodes
+            sourceNodeId: ${nodes.ctrl.master.id}
+            targetNodeId: ${@wnode.id}
+            groupAlias: ctrl
+            alias: ctrl
+  
+        updateLink2CtrlConsole:
+          cmd[${this.nodeId}]: sed -i "s#href=\"/console\"#href=\"http://node${nodes.ctrl.master.id}-${env.domain}/console\"#g" ${STACK_PATH}/welcome-content/index.html
+
+        setRedirectToController:
+          cmd[cp]: sudo setAdminPanelRedirect
+                
+onAfterClone:
+  install:
+    jps: ${baseUrl}/auto-cluster.jps?_r=${fn.random}
+    envName: ${event.response.env.envName}
+    nodeGroup: cp
