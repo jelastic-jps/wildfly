@@ -81,12 +81,11 @@ actions:
   buildCluster:
   - addNodes:
       fixedCloudlets: ${nodes.cp.master.fixedCloudlets}
-      flexibleCloudlets: 6
+      flexibleCloudlets: ${nodes.cp.master.flexibleCloudlets}      
       displayName: Controller
-      nodeType: docker
-      nodeGroup: ctrl
-      dockerName: ${nodes.cp.master.customitem.dockerName}
-      dockerTag: ${nodes.cp.master.customitem.dockerTag}
+      nodeType: ${nodes.cp.master.nodeType}
+      tag: ${nodes.cp.master.version}      
+      nodeGroup: ctrl 
       metadata:
         layer: ctrl
       dockerEnvVars:
