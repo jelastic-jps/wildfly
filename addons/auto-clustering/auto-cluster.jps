@@ -79,22 +79,40 @@ actions:
     cmd[${nodes.cp.master.id}]: sudo saveDatasources;
 
   buildCluster:
-  - addNodes:
-      fixedCloudlets: ${nodes.cp.master.fixedCloudlets}
-      flexibleCloudlets: 6
-      displayName: Controller
-      nodeType: docker
-      nodeGroup: ctrl
-      dockerName: ${nodes.cp.master.customitem.dockerName}
-      dockerTag: ${nodes.cp.master.customitem.dockerTag}
-      metadata:
-        layer: ctrl
-      dockerEnvVars:
-        CTRL: 'true'
-        WORKER_USER: ${globals.workerUser}
-        WORKER_PASSWORD: ${globals.workerPswd}
-        JBOSS_MODE: domain
-        JELASTIC_EXPOSE: 4949
+  #for 5.4+
+  - if (!'${:}'):
+      addNodes:
+        fixedCloudlets: ${nodes.cp.master.fixedCloudlets}
+        flexibleCloudlets: ${nodes.cp.master.flexibleCloudlets}      
+        displayName: Controller
+        nodeType: ${nodes.cp.master.nodeType}
+        tag: ${nodes.cp.master.version}      
+        nodeGroup: ctrl 
+        metadata:
+          layer: ctrl
+        dockerEnvVars:
+          CTRL: 'true'
+          WORKER_USER: ${globals.workerUser}
+          WORKER_PASSWORD: ${globals.workerPswd}
+          JBOSS_MODE: domain
+          JELASTIC_EXPOSE: 4949
+  #for < 5.4      
+  - if ('${:}'):
+      addNodes:
+        fixedCloudlets: ${nodes.cp.master.fixedCloudlets}
+        flexibleCloudlets: ${nodes.cp.master.flexibleCloudlets}      
+        displayName: Controller
+        dockerName: ${nodes.cp.master.customitem.dockerName}
+        dockerTag: ${nodes.cp.master.customitem.dockerTag} 
+        nodeGroup: ctrl 
+        metadata:
+          layer: ctrl
+        dockerEnvVars:
+          CTRL: 'true'
+          WORKER_USER: ${globals.workerUser}
+          WORKER_PASSWORD: ${globals.workerPswd}
+          JBOSS_MODE: domain
+          JELASTIC_EXPOSE: 4949       
 
   - installAddon:
       id: wildfly-build-cluster-addon      
