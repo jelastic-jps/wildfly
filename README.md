@@ -9,6 +9,7 @@ WildFly multiple instances running in managed domain mode share the same managem
 
 More details can be found at the article: [WildFly Managed Domain in Containers: Automatic Micro Clustering and Scaling](https://jelastic.com/blog/wildfly-managed-domain-in-containers-auto-micro-clustering-and-scaling/)
 
+[![Deploy](https://github.com/jelastic-jps/git-push-deploy/raw/master/images/deploy-to-jelastic.png)](https://jelastic.com/install-application/?manifest=https://raw.githubusercontent.com/jelastic-jps/wildfly/master/manifest.jps) 
 
 # Continuous Deployment
 An exampple how to connect, build and deploy Git repo with Maven automatically: [Continuous Deployment with Maven](continuous-deployment)
