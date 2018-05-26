@@ -28,7 +28,7 @@ After this point your application should be deployed and ready to handle request
 
 #### 6 - Edit deployment settings
 
-<img src="images/wildfly-edit-deployment.png" width="500"/>
+<img src="../images/wildfly-edit-deployment.png" width="500"/>
 
 Any feedback or questions? <a href="mailto:info@jelastic.com">Drop us a message</a>. 
 
