@@ -40,4 +40,4 @@ onInstall:
       url: ${settings.repo}
       branch: master
 
-success: /text/success-ci-cd.md
+success: /text/success-cd.md
