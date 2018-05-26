@@ -1,0 +1,1 @@
+Please wait while we build and configure the cluster for your project. The process may take several minutes before you get the cluster up and running. You can check the progress in "Active Tasks" panel below. 
