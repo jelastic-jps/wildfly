@@ -19,7 +19,7 @@ Press "Deploy" button and choose a preferable cloud service provider in your reg
 An exampple how to connect, build and deploy Git repo with Maven automatically: [Continuous Deployment with Maven](continuous-deployment)
 
 ## Consultancies and Support
-If you need a help with your project, please <a href="mailto:support@jelastic.com">send us a message</a>. 
+If you need a help with your project, please <a href="mailto:sales@jelastic.com">send us a message</a>. 
 
 --
 
