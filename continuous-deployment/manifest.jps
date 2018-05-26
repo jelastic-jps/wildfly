@@ -1,0 +1,43 @@
+---
+type: install
+version: 1.2
+baseUrl: https://raw.githubusercontent.com/jelastic-jps/wildfly/master
+logo: /images/wildfly-logo-70px.png
+name: WildFly Continuous Deployment
+categories:
+  - apps/dev-and-admin-tools
+homepage: https://github.com/jelastic-jps/wildfly
+description:
+  text: The package automatically installs WildFly and Maven, connects them to each other and integrates public Git repo for continuous deployment. 
+      Clustering and scaling options can be found at [WildFly in Managed Domain Mode](https://jelastic.com/blog/wildfly-managed-domain-in-containers-auto-micro-clustering-and-scaling/).
+  short: Continuous Deployment for WildFly
+  
+settings:
+  fields:
+  - name: repo
+    caption: Git Public Repo URL
+    type: string
+    inputType: string
+    default: https://github.com/jelastic/HelloWorld.git
+    required: true
+
+nodes:
+- cloudlets: 8
+  nodeGroup: cp
+  nodeType: wildfly
+  displayName: App Server
+  
+- cloudlets: 8
+  nodeGroup: build
+  nodeType: maven3
+  displayName: Build Node
+ssl: true
+
+onInstall:
+  - script: /scripts/add-public-git-repo.js
+    params:
+      name: HelloWorld
+      url: ${settings.repo}
+      branch: master
+
+success: /text/success-ci-cd.md
