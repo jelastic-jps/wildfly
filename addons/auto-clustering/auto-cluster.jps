@@ -46,6 +46,9 @@ onAfterSetCloudletCount[cp]:
 
 onAfterResetNodePassword[cp]:
   if (nodes.ctrl): addAdminUser
+  
+onAfterRestartNode[cp]:
+- setRedirectToController
 
 addons:
   - id: wildfly-build-cluster-addon
