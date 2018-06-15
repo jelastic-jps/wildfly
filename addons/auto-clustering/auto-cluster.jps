@@ -33,13 +33,14 @@ onBeforeServiceScaleOut[cp]:
       migrate: true
 
 onAfterServiceScaleOut[cp]:
-- cmd[cp]: sudo service wildfly restart
-- forEach(wnode:nodes.cp):
-    updateLink2CtrlConsole:
-      nodeId: ${@wnode.id}
-      ctrlNodeId: ${nodes.ctrl.master.id}
-- setNodeDisplayName[cp]: Worker
-- if (nodes.ctrl): setJavaMemoryOpts
+  - if (nodes.cp.length > 1):
+    - cmd[cp]: sudo service wildfly restart
+    - forEach(wnode:nodes.cp):
+        updateLink2CtrlConsole:
+          nodeId: ${@wnode.id}
+          ctrlNodeId: ${nodes.ctrl.master.id}
+    - setNodeDisplayName[cp]: Worker
+    - if (nodes.ctrl): setJavaMemoryOpts
 
 onAfterSetCloudletCount[cp]:
   if (nodes.ctrl): setJavaMemoryOpts
