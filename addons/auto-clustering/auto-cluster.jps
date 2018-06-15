@@ -27,7 +27,7 @@ onAfterRedeployContainer[cp]:
 - if (nodes.ctrl): setJavaMemoryOpts
 
 onBeforeServiceScaleOut[cp]:
-- if (!nodes.ctrl):
+- if (!nodes.ctrl && nodes.cp.length > 1):
   - saveDatasources
   - buildCluster:
       migrate: true
