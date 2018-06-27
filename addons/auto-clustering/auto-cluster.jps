@@ -22,25 +22,24 @@ onInstall:
         migrate: false
 
 onAfterRedeployContainer[cp]:
-- cmd[cp]: sudo service wildfly restart
+- api [cp]: environment.control.RestartNodesByGroup
 - setRedirectToController
 - if (nodes.ctrl): setJavaMemoryOpts
 
 onBeforeServiceScaleOut[cp]:
-- if (!nodes.ctrl && nodes.cp.length > 1):
+- if (!nodes.ctrl):
   - saveDatasources
   - buildCluster:
       migrate: true
 
 onAfterServiceScaleOut[cp]:
-  - if (nodes.cp.length > 1):
-    - cmd[cp]: sudo service wildfly restart
-    - forEach(wnode:nodes.cp):
-        updateLink2CtrlConsole:
-          nodeId: ${@wnode.id}
-          ctrlNodeId: ${nodes.ctrl.master.id}
-    - setNodeDisplayName[cp]: Worker
-    - if (nodes.ctrl): setJavaMemoryOpts
+- api [cp]: environment.control.RestartNodesByGroup
+- forEach(wnode:nodes.cp):
+    updateLink2CtrlConsole:
+      nodeId: ${@wnode.id}
+      ctrlNodeId: ${nodes.ctrl.master.id}
+- setNodeDisplayName[cp]: Worker
+- if (nodes.ctrl): setJavaMemoryOpts
 
 onAfterSetCloudletCount[cp]:
   if (nodes.ctrl): setJavaMemoryOpts
@@ -133,7 +132,7 @@ actions:
       updateLink2CtrlConsole:
         nodeId: ${@wnode.id}
         ctrlNodeId: ${nodes.ctrl.master.id}
-  - cmd[cp]: sudo service wildfly restart
+  - api [cp]: environment.control.RestartNodesByGroup
   - setRedirectToController
 
   addWokerUser:
