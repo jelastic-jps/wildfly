@@ -47,6 +47,9 @@ onAfterSetCloudletCount[cp]:
 onAfterResetNodePassword[cp]:
   if (nodes.ctrl): addAdminUser
   
+onAfterResetServicePassword[cp]:
+  if (nodes.ctrl): addAdminUser  
+  
 onAfterRestartNode[cp]:
 - setRedirectToController
 
