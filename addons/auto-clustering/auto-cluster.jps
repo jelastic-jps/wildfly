@@ -13,6 +13,7 @@ nodeGroupAlias:
   ${targetNodes.nodeGroup}: cp
 
 onInstall:
+  - if (!(!'${:}' && '${fn.compareEngine(1.6):}' > 0)):
   - if (nodes.ctrl && nodes.cp.length > 1):
     - setRedirectToController
     - forEach(wnode:nodes.cp):
@@ -20,6 +21,14 @@ onInstall:
   - if (!nodes.ctrl && nodes.cp.length > 1):
     - buildCluster:
         migrate: false
+  - if (!'${:}' && '${fn.compareEngine(1.6):}' > 0):
+    - if (nodes.ctrl):
+      - setRedirectToController
+      - forEach(wnode:nodes.cp):
+          cmd[${@wnode.id}]: sed -i "s#http://node.*/console#http://node${nodes.ctrl.master.id}-${env.domain}/console#g" ${STACK_PATH}/welcome-content/index.html
+    - if (!nodes.ctrl):
+      - buildCluster:
+          migrate: false
 
 onAfterRedeployContainer[cp]:
 - api [cp]: environment.control.RestartNodesByGroup
@@ -62,6 +71,7 @@ addons:
 
     onInstall:
     - setupCtrl
+    - if (!(!'${:}' && '${fn.compareEngine(1.6):}' > 0)):
     - addAdminUser
     - setNodeDisplayName[cp]: Worker
     - if (${settings.migrate}): migrateToDomain
@@ -102,6 +112,11 @@ actions:
           WORKER_PASSWORD: ${globals.workerPswd}
           JBOSS_MODE: domain
           JELASTIC_EXPOSE: 4949
+        nodeGroupData:
+          validation:
+            maxCount: 1
+          isClusterSupport: false
+          isDeploySupport: false
   #for < 5.4      
   - if ('${:}'):
       addNodes:
