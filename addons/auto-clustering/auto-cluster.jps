@@ -72,7 +72,7 @@ addons:
     onInstall:
     - setupCtrl
     - if (!(!'${:}' && '${fn.compareEngine(1.6):}' > 0)):
-    - addAdminUser
+        - addAdminUser
     - setNodeDisplayName[cp]: Worker
     - if (${settings.migrate}): migrateToDomain
     - setJavaMemoryOpts
