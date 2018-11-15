@@ -103,6 +103,7 @@ actions:
     sourcePath: "${globals.path}"
     sourceNodeId: "${nodes.ctrl.master.id}"
     name: Internal admin certificates
+    readOnly: true
 
   buildCluster:
   #for 5.4+
