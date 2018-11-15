@@ -84,6 +84,7 @@ addons:
         - api: env.control.SetNodeGroupDisplayName
           nodeGroup: cp
           displayName: Workers
+    - api [ctrl]: environment.control.RestartNodesByGroup
 
 actions:
   setJavaMemoryOpts:
