@@ -20,6 +20,7 @@ nodes:
     count: 2
     nodeGroup: cp
     nodeType: wildfly
+    cluster: true
     
 ssl: true
     
