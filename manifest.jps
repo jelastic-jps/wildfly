@@ -1,11 +1,10 @@
----
 type: install
 version: 1.2
 baseUrl: https://raw.githubusercontent.com/jelastic-jps/wildfly/master
 logo: /images/wildfly-logo-70px.png
 name: WildFly Managed Domain Cluster 
 categories:
-  - apps/dev-and-admin-tools
+  - apps/clusters
 homepage: https://github.com/jelastic-jps/wildfly
 description:
   text: The package installs WildFly Cluster running in Managed Domain mode. More details and specifics can be found at [WildFly in Managed Domain Mode](https://jelastic.com/blog/wildfly-managed-domain-in-containers-auto-micro-clustering-and-scaling/).
