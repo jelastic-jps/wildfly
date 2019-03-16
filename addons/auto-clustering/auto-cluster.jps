@@ -51,6 +51,9 @@ onAfterServiceScaleOut[cp]:
 - setNodeDisplayName[cp]: Worker
 - if (nodes.ctrl): setJavaMemoryOpts
 
+onAfterServiceScaleOut[lb]:
+- setNodeDisplayName[lb]: Balancer
+
 onAfterSetCloudletCount[cp]:
   if (nodes.ctrl): setJavaMemoryOpts
 
@@ -84,7 +87,8 @@ addons:
         - api: env.control.SetNodeGroupDisplayName
           nodeGroup: cp
           displayName: Workers
-    - api [ctrl]: environment.control.RestartNodesByGroup
+    - if (!nodes.lb):
+        - setNodeDisplayName[lb]: Balancer
 
 actions:
   setJavaMemoryOpts:
