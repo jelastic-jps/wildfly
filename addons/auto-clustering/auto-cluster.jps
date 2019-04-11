@@ -54,6 +54,9 @@ onAfterServiceScaleOut[cp]:
 onAfterServiceScaleOut[bl]:
 - setNodeDisplayName[bl]: Balancer
 
+onAfterAddNode[bl]:
+- setNodeDisplayName[bl]: Balancer
+
 onAfterSetCloudletCount[cp]:
   if (nodes.ctrl): setJavaMemoryOpts
 
