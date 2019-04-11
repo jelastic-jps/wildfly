@@ -87,7 +87,7 @@ addons:
         - api: env.control.SetNodeGroupDisplayName
           nodeGroup: cp
           displayName: Workers
-    - if (!nodes.bl):
+    - if (nodes.bl):
         - setNodeDisplayName[bl]: Balancer
 
 actions:
