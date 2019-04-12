@@ -20,27 +20,19 @@ onInstall:
     - forEach(wnode:nodes.cp):
         cmd[${@wnode.id}]: sed -i "s#http://node.*/console#http://node${nodes.ctrl.master.id}-${env.domain}/console#g" ${STACK_PATH}/welcome-content/index.html
   - if (!nodes.ctrl && nodes.cp.length > 1):
-    - buildCluster:
-        migrate: false
+    - buildCluster
   - if (!'${:}' && '${fn.compareEngine(1.6):}' > 0):
     - if (nodes.ctrl):
       - setRedirectToController
       - forEach(wnode:nodes.cp):
           cmd[${@wnode.id}]: sed -i "s#http://node.*/console#http://node${nodes.ctrl.master.id}-${env.domain}/console#g" ${STACK_PATH}/welcome-content/index.html
     - if (!nodes.ctrl):
-      - buildCluster:
-          migrate: false
+      - buildCluster
 
 onAfterRedeployContainer[cp]:
 - api [cp]: environment.control.RestartNodesByGroup
 - setRedirectToController
 - if (nodes.ctrl): setJavaMemoryOpts
-
-onBeforeServiceScaleOut[cp]:
-- if (!nodes.ctrl):
-  - saveDatasources
-  - buildCluster:
-      migrate: true
 
 onAfterServiceScaleOut[cp]:
 - api [cp]: environment.control.RestartNodesByGroup
@@ -81,7 +73,7 @@ addons:
     - if (!(!'${:}' && '${fn.compareEngine(1.6):}' > 0)):
         - addAdminUser
     - setNodeDisplayName[cp]: Worker
-    - if (${settings.migrate}): migrateToDomain
+    - migrateToDomain
     - setJavaMemoryOpts
     - if (jelastic.env.control.SetNodeGroupDisplayName):
         - api: env.control.SetNodeGroupDisplayName
