@@ -2,6 +2,7 @@ type: install
 version: 1.2
 baseUrl: https://raw.githubusercontent.com/jelastic-jps/wildfly/master
 logo: /images/wildfly-logo-70px.png
+id: wildfly-managed-domain-cluster
 name: WildFly Managed Domain Cluster 
 categories:
   - apps/clusters
