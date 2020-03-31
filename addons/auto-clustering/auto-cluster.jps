@@ -2,6 +2,7 @@ jpsType: update
 jpsVersion: 1.4
 name: WildFly Auto-Cluster
 id: wildfly-cluster
+targetNodes: none
 
 globals:
   workerUser: worker
@@ -11,7 +12,7 @@ globals:
 baseUrl: https://raw.githubusercontent.com/jelastic-jps/wildfly/master/addons/auto-clustering
 
 nodeGroupAlias:
-  ${targetNodes.nodeGroup}: cp
+  ${settings.nodeGroup}: cp
 
 onInstall:
   - if (!(!'${:}' && '${fn.compareEngine(1.6):}' > 0)):
