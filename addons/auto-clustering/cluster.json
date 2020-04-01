@@ -1,0 +1,14 @@
+{
+  "convertable" : true,
+  "jps"         : "https://raw.githubusercontent.com/jelastic-jps/wildfly/master/addons/auto-clustering/auto-cluster.jps",  
+  "defaultState": false,
+  "compatibleAddons": ["wildfly-cluster"],
+  "nodeGroupData": {
+    "skipNodeEmails": true,
+    "scalingMode": "STATEFUL",
+    "adminUrl": "",
+    "isResetServicePassword": false
+  },
+  "description" : "WildFly in Domain Mode with enabled clustering to get high availability across the nodes and guarantee the continuous performance of a deployed Java EE application in case of a node failure. <a href='https://jelastic.com/blog/wildfly-managed-domain-in-containers-auto-micro-clustering-and-scaling/'>Learn More</a><img width='290' height='156' src='https://raw.githubusercontent.com/jelastic/icons/master/wildfly/jelastic/images/tip-auto-clustering.svg?sanitize=true'>",
+  "skipOnEnvInstall": true
+}
