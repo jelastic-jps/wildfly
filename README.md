@@ -5,7 +5,7 @@ WildFly multiple instances running in managed domain mode share the same managem
 - Issue commands and deploy applications to all running WildFly servers from one place
 - Advanced development scenarios, i.e. those involving interaction between multiple WildFly instances
 
-![WildFly cluster scheme](/images/wildfly.svg)
+![WildFly cluster scheme](/images/wildfly-white.svg)
 
 More details can be found at the article: [WildFly Managed Domain in Containers: Automatic Micro Clustering and Scaling](https://jelastic.com/blog/wildfly-managed-domain-in-containers-auto-micro-clustering-and-scaling/)
 
