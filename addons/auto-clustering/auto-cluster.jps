@@ -62,6 +62,11 @@ onAfterResetServicePassword[cp]:
 onAfterRestartNode[cp]:
 - setRedirectToController
 
+onAfterSetExtIpCount[${nodes.cp.master.id}]:
+- cmd [${nodes.cp.master.id}]: |-
+    HOST_TO_RELOAD=$(jboss-cli.sh --timeout=30000 --connect controller=localhost:9990 --command="ls host");
+    jboss-cli.sh --timeout=30000 --connect controller=localhost:9990 --command="reload --host=${HOST_TO_RELOAD}";
+
 addons:
   - id: wildfly-build-cluster-addon
     baseUrl: https://raw.githubusercontent.com/jelastic-jps/wildfly/master/addons/auto-clustering
