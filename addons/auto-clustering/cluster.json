@@ -9,6 +9,6 @@
     "adminUrl": "",
     "isResetServicePassword": false
   },
-  "description" : "<h3>Scalable Cluster with High Availability</h3>Interconnection of WildFly servers with pre-configured session replication, load balancing and extra Domain Controller to perform centralized control of cluster nodes. <a href='https://jelastic.com/blog/wildfly-managed-domain-in-containers-auto-micro-clustering-and-scaling/'>Learn More</a><img width='270' height='340' src='https://raw.githubusercontent.com/jelastic/icons/master/wildfly/jelastic/images/tip-auto-clustering.svg?sanitize=true'>",
+  "description" : "<h3>Scalable Cluster with High Availability</h3>Interconnection of WildFly servers with pre-configured session replication, load balancing and extra Domain Controller to perform centralized control of cluster nodes. <a href='https://jelastic.com/blog/wildfly-managed-domain-in-containers-auto-micro-clustering-and-scaling/'>Learn More</a><img width='270' height='330' src='https://raw.githubusercontent.com/jelastic/icons/master/wildfly/jelastic/images/tip-auto-clustering.svg?sanitize=true'>",
   "skipOnEnvInstall": true
 }
