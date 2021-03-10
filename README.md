@@ -6,7 +6,7 @@ WildFly multiple instances running in managed domain mode share the same managem
 - Advanced development scenarios, i.e. those involving interaction between multiple WildFly instances
 
 <p align="left">
-<img src="images/postgresql-replication-topology.svg" width="350">
+<img src="images/auto-clustering-readme.svg" width="350">
 </p>
 
 More details can be found at the article: [WildFly Managed Domain in Containers: Automatic Micro Clustering and Scaling](https://jelastic.com/blog/wildfly-managed-domain-in-containers-auto-micro-clustering-and-scaling/)
