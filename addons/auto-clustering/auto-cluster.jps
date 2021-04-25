@@ -31,6 +31,8 @@ onInstall:
       - buildCluster
   - if (settings.cloned == 'true'):
     - cmd[ctrl]: jem service restart
+    - forEach(wnode:nodes.cp):
+        cmd[${@wnode.id}]: jem service restart
 
 onAfterRedeployContainer[cp]:
 - api [cp]: environment.control.RestartNodesByGroup
