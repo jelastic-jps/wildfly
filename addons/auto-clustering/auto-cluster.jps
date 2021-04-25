@@ -29,6 +29,9 @@ onInstall:
           cmd[${@wnode.id}]: sed -i "s#http://node.*/console#http://node${nodes.ctrl.master.id}-${env.domain}/console#g" ${STACK_PATH}/welcome-content/index.html
     - if (!nodes.ctrl):
       - buildCluster
+  - if (settings.cloned == 'true'):
+    - cmd[ctrl]: jem service restart
+    - cmd[cp]: jem service restart
 
 onAfterRedeployContainer[cp]:
 - api [cp]: environment.control.RestartNodesByGroup
@@ -196,3 +199,5 @@ onAfterClone:
     jps: ${baseUrl}/auto-cluster.jps?_r=${fn.random}
     envName: ${event.response.env.envName}
     nodeGroup: cp
+    settings:
+      cloned: 'true'
