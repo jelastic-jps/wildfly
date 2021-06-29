@@ -67,9 +67,13 @@ onAfterRestartNode[cp]:
 - setRedirectToController
 
 onAfterSetExtIpCount[${nodes.cp.master.id}]:
+- reloadMasterNode
 - cmd [${nodes.cp.master.id}]: |-
     HOST_TO_RELOAD=$(jboss-cli.sh --timeout=30000 --connect controller=localhost:9990 --command="ls host");
     jboss-cli.sh --timeout=30000 --connect controller=localhost:9990 --command="reload --host=${HOST_TO_RELOAD}";
+
+onAfterScaleIn[cp]:    
+  reloadMasterNode
 
 addons:
   - id: wildfly-build-cluster-addon
@@ -194,6 +198,10 @@ actions:
 
   setRedirectToController:
     cmd[cp]: sudo setAdminPanelRedirect
+    
+  reloadMasterNode:
+  - if (nodes.ctrl):
+    - cmd[${nodes.ctrl.master.id}]: jboss-cli.sh --timeout=30000 --connect controller=localhost:9999 --command="reload --host=master"
 
 onAfterClone:
   install:
