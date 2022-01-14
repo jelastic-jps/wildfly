@@ -179,8 +179,8 @@ actions:
   - setRedirectToController
 
   addWokerUser:
-    nodeGroup: ctrl
-    cmd: $STACK_PATH/bin/add-user.sh $WORKER_USER $WORKER_PASSWORD 2>&1
+  - cmd[ctrl]: $STACK_PATH/bin/add-user.sh $WORKER_USER $WORKER_PASSWORD 2>&1
+  - reloadMasterNode
 
   addAdminUser:
     script: ${baseUrl}/scripts/setAdminPassword.js?_r=${fn.random}
