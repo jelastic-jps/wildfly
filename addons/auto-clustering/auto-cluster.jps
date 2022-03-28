@@ -1,5 +1,5 @@
-jpsType: update
-jpsVersion: 1.4
+type: update
+version: 1.6.1
 name: WildFly Auto-Cluster
 id: wildfly-cluster
 targetNodes: none
@@ -8,6 +8,7 @@ globals:
   workerUser: worker
   workerPswd: ${fn.password}
   path: /opt/wildfly/ssl/admin
+  keystorePass: ${fn.password(24)}
 
 baseUrl: https://raw.githubusercontent.com/jelastic-jps/wildfly/master/addons/auto-clustering
 
@@ -15,89 +16,54 @@ nodeGroupAlias:
   ${settings.nodeGroup}: cp
 
 onInstall:
-  - if (!(!'${:}' && '${fn.compareEngine(1.6):}' > 0)):
-  - if (nodes.ctrl && nodes.cp.length > 1):
-    - setRedirectToController
-    - forEach(wnode:nodes.cp):
-        cmd[${@wnode.id}]: sed -i "s#http://node.*/console#http://node${nodes.ctrl.master.id}-${env.domain}/console#g" ${STACK_PATH}/welcome-content/index.html
-  - if (!nodes.ctrl && nodes.cp.length > 1):
-    - buildCluster
-  - if (!'${:}' && '${fn.compareEngine(1.6):}' > 0):
-    - if (nodes.ctrl):
-      - setRedirectToController
-      - forEach(wnode:nodes.cp):
-          cmd[${@wnode.id}]: sed -i "s#http://node.*/console#http://node${nodes.ctrl.master.id}-${env.domain}/console#g" ${STACK_PATH}/welcome-content/index.html
-    - if (!nodes.ctrl):
-      - buildCluster
-  - if (settings.cloned == 'true'):
-    - cmd[ctrl]: jem service restart
-    - forEach(wnode:nodes.cp):
-        cmd[${@wnode.id}]: jem service restart
+  - if (nodes.ctrl):
+    - if (${settings.clone:false}): 
+      - cmd [cp]: jem service restart
+      - setRedirectToController: ${nodes.cp.join(id,)}
+    - else: buildCluster
+  - else: buildCluster
 
 onAfterRedeployContainer[cp]:
-- api [cp]: environment.control.RestartNodesByGroup
-- setRedirectToController
+- cmd [${event.response.nodes.join(id,)}]: jem service restart
+- setRedirectToController: ${nodes.cp.join(id,)}
 - if (nodes.ctrl): setJavaMemoryOpts
 
 onAfterServiceScaleOut[cp]:
-- api [cp]: environment.control.RestartNodesByGroup
-- forEach(wnode:nodes.cp):
-    updateLink2CtrlConsole:
-      nodeId: ${@wnode.id}
-      ctrlNodeId: ${nodes.ctrl.master.id}
+- copyInternalCertificate: ${event.response.nodes.join(id,)}
+- cmd [${event.response.nodes.join(id,)}]: jem service restart
+- setRedirectToController: ${event.response.nodes.join(id,)}
 - setNodeDisplayName[cp]: Worker
 - if (nodes.ctrl): setJavaMemoryOpts
 
-onAfterServiceScaleOut[bl]:
-- setNodeDisplayName[bl]: Balancer
+onAfterScaleIn[cp]:
+  - if (nodes.ctrl):
+    - reloadMasterNode
+  
+onBeforeRemoveNode [cp]:
+  if (nodes.cp.length == 1):
+    install:
+      type: update
+      name: WildFly Auto-Cluster
+      id: wildfly-cluster
 
-onAfterAddNode[bl]:
-- setNodeDisplayName[bl]: Balancer
+onAfterServiceScaleOut[bl]:
+- setNodeDisplayName[${event.response.nodes.join(id,)}]: Balancer
 
 onAfterSetCloudletCount[cp]:
   if (nodes.ctrl): setJavaMemoryOpts
 
-onAfterResetNodePassword[cp]:
-  if (nodes.ctrl): addAdminUser
-  
-onAfterResetServicePassword[cp]:
-  if (nodes.ctrl): addAdminUser  
-  
 onAfterRestartNode[cp]:
-- setRedirectToController
+- setRedirectToController: ${nodes.cp.join(id,)}
+
+onAfterMigrate:
+- cmd [ctrl]: jem service restart
+- cmd [cp]: jem service restart
 
 onAfterSetExtIpCount[${nodes.cp.master.id}]:
 - reloadMasterNode
 - cmd [${nodes.cp.master.id}]: |-
-    HOST_TO_RELOAD=$(jboss-cli.sh --timeout=30000 --connect controller=localhost:9990 --command="ls host");
+    HOST_TO_RELOAD=$(jboss-cli.sh --timeout=30000 --connect controller=localhost:9990 --command="ls host"); 
     jboss-cli.sh --timeout=30000 --connect controller=localhost:9990 --command="reload --host=${HOST_TO_RELOAD}";
-
-onAfterScaleIn[cp]:    
-  reloadMasterNode
-
-addons:
-  - id: wildfly-build-cluster-addon
-    baseUrl: https://raw.githubusercontent.com/jelastic-jps/wildfly/master/addons/auto-clustering
-
-    nodeGroupAlias:
-      ${settings.nodeGroup}: cp
-
-    onInstall:
-    - setupCtrl
-    - if (!(!'${:}' && '${fn.compareEngine(1.6):}' > 0)):
-        - addAdminUser
-    - setNodeDisplayName[cp]: Worker
-    - migrateToDomain
-    - setJavaMemoryOpts
-    - if (jelastic.env.control.SetNodeGroupDisplayName):
-        - api: env.control.SetNodeGroupDisplayName
-          nodeGroup: ctrl
-          displayName: Domain Controller
-        - api: env.control.SetNodeGroupDisplayName
-          nodeGroup: cp
-          displayName: Workers
-    - if (nodes.bl):
-        - setNodeDisplayName[bl]: Balancer
 
 actions:
   setJavaMemoryOpts:
@@ -108,26 +74,28 @@ actions:
 
   saveDatasources:
     cmd[${nodes.cp.master.id}]: sudo saveDatasources;
-
-  mountSSLDirectory:
-    api: env.file.AddMountPointByGroup
-    nodeGroup: cp
-    path: "${globals.path}"
-    protocol: nfs
-    sourcePath: "${globals.path}"
-    sourceNodeId: "${nodes.ctrl.master.id}"
-    name: Internal admin certificates
+    
+  copyInternalCertificate:
+    - cmd[cp]: sed -i 's/keystore-password=\"jelasticsecurekeypassforwildfly123\"/keystore-password=\"\$\{env.CTRL_KEYSTORE_PASS:jelasticsecurekeypassforwildfly123\}\"/g' /opt/wildfly/domain/configuration/host-slave.xml 
+    - cmd[${nodes.ctrl.master.id}]: sed -i 's/keystore-password=\"jelasticsecurekeypassforwildfly123\"/keystore-password=\"\$\{env.KEYSTORE_PASS:jelasticsecurekeypassforwildfly123\}\"/g' /opt/wildfly/domain/configuration/host-master.xml 
+    - cmd[${nodes.ctrl.master.id}]: encryptCert getEncFiles
+    - cmd[${this:cp}]: encryptCert setEncFiles '${response.out}'
+      user: root
 
   buildCluster:
-  #for 5.4+
-  - if (!'${:}'):
-      addNodes:
+  - if (nodes.ctrl):
+    - env.control.AddContainerEnvVars [${nodes.ctrl.master.id}]:
+        vars: {"CTRL":"true", "WORKER_USER": "${globals.workerUser}", "WORKER_PASSWORD":"${globals.workerPswd}", "JBOSS_MODE":"domain", "JELASTIC_EXPOSE":"4949", "PASS":"${fn.password}", "KEYSTORE_PASS":"${globals.keystorePass}"}
+    - cmd [ctrl]: service wildfly restart; service jelinit restart
+      user: root
+  - else:
+    - addNodes:
         fixedCloudlets: ${nodes.cp.master.fixedCloudlets}
-        flexibleCloudlets: ${nodes.cp.master.flexibleCloudlets}      
+        flexibleCloudlets: ${nodes.cp.master.flexibleCloudlets}
         displayName: Controller
         nodeType: ${nodes.cp.master.nodeType}
-        tag: ${nodes.cp.master.version}      
-        nodeGroup: ctrl 
+        tag: ${nodes.cp.master.version}
+        nodeGroup: ctrl
         metadata:
           layer: ctrl
         dockerEnvVars:
@@ -136,77 +104,63 @@ actions:
           WORKER_PASSWORD: ${globals.workerPswd}
           JBOSS_MODE: domain
           JELASTIC_EXPOSE: 4949
+          PASS: "${fn.password}"
+          KEYSTORE_PASS: "${globals.keystorePass}"
         nodeGroupData:
           validation:
             maxCount: 1
           isClusterSupport: false
           isDeploySupport: false
-  #for < 5.4      
-  - if ('${:}'):
-      addNodes:
-        fixedCloudlets: ${nodes.cp.master.fixedCloudlets}
-        flexibleCloudlets: ${nodes.cp.master.flexibleCloudlets}      
-        displayName: Controller
-        dockerName: ${nodes.cp.master.customitem.dockerName}
-        dockerTag: ${nodes.cp.master.customitem.dockerTag} 
-        nodeGroup: ctrl 
-        metadata:
-          layer: ctrl
-        dockerEnvVars:
-          CTRL: 'true'
-          WORKER_USER: ${globals.workerUser}
-          WORKER_PASSWORD: ${globals.workerPswd}
-          JBOSS_MODE: domain
-          JELASTIC_EXPOSE: 4949       
-
-  - installAddon:
-      id: wildfly-build-cluster-addon      
-      settings:
-        migrate: ${this.migrate}
-        nodeGroup: ${targetNodes.nodeGroup}
+  - setupCtrl
+  - setNodeDisplayName[cp]: Worker
+  - migrateToDomain
+  - setJavaMemoryOpts
+  - api: env.control.SetNodeGroupDisplayName
+    nodeGroup: ctrl
+    displayName: Domain Controller
+  - api: env.control.SetNodeGroupDisplayName
+    nodeGroup: cp
+    displayName: Workers
+  - if (nodes.bl):
+      - setNodeDisplayName[bl]: Balancer
+  - env.control.AddContainerEnvVars[cp]:
+      vars: {"WEBROOT":"/opt/wildfly/domain/servers/worker/tmp/"}
 
   setupCtrl:
-  - mountSSLDirectory
   - addWokerUser:
     ctrlNodeId: ${nodes.ctrl.master.id}
-  - linkLayers:
-      ctrlNodeId: ${nodes.ctrl.master.id}
-  - forEach(wnode:nodes.cp):
-      updateLink2CtrlConsole:
-        nodeId: ${@wnode.id}
-        ctrlNodeId: ${nodes.ctrl.master.id}
-  - api [cp]: environment.control.RestartNodesByGroup
-  - setRedirectToController
+  - linkContainers:
+      ids: ${nodes.cp.join(id,)}
+  - copyInternalCertificate
+  - cmd [cp]: jem service restart
+  - setRedirectToController: ${nodes.cp.join(id,)}
 
   addWokerUser:
   - cmd[ctrl]: $STACK_PATH/bin/add-user.sh $WORKER_USER $WORKER_PASSWORD 2>&1
   - reloadMasterNode
 
-  addAdminUser:
-    script: ${baseUrl}/scripts/setAdminPassword.js?_r=${fn.random}
-
-  linkLayers:
-    forEach (wnode:nodes.cp):
-      api: env.control.LinkDockerNodes
-      sourceNodeId: ${nodes.ctrl.master.id}
-      targetNodeId: ${@wnode.id}
-      groupAlias: ctrl
-      alias: ctrl
-
-  updateLink2CtrlConsole:
-    cmd[${this.nodeId}]: sed -i "s#href=\"/console\"#href=\"http://node${nodes.ctrl.master.id}-${env.domain}/console\"#g" ${STACK_PATH}/welcome-content/index.html
+  linkContainers:
+    script: |
+      var ids = "${this.ids}".split(","), links = [];       
+      for (var i = 0, n = ids.length; i < n; i++) 
+          links.push({ sourceNodeId: ${nodes.ctrl.master.id}, targetNodeId: ids[i], alias: "ctrl", groupAlias: "ctrl" });
+      return { result: 0, onAfterReturn: {"env.control.LinkDockerNodes": links} };
 
   setRedirectToController:
-    cmd[cp]: sudo setAdminPanelRedirect
+    cmd[${this}]: sudo setAdminPanelRedirect
+    
+  uninstallJavaAddon:
+    cmd[${this}]: \[ -n "$(find /usr/ -name java.orig)" \] && /usr/java/latest/bin/java --uninstall || true; 
+    user: root
     
   reloadMasterNode:
   - if (nodes.ctrl):
-    - cmd[${nodes.ctrl.master.id}]: jboss-cli.sh --timeout=30000 --connect controller=localhost:9999 --command="reload --host=master"
+    - cmd[${nodes.ctrl.master.id}]: jboss-cli.sh --timeout=30000 --connect controller=localhost:9999 --command="reload --host=master" 
 
 onAfterClone:
-  install:
-    jps: ${baseUrl}/auto-cluster.jps?_r=${fn.random}
+  - script: delete MANIFEST.id; return {result:0, jps:MANIFEST};
+  - install: ${response.jps}
     envName: ${event.response.env.envName}
-    nodeGroup: cp
     settings:
-      cloned: 'true'
+      nodeGroup: ${settings.nodeGroup} 
+      clone: true
