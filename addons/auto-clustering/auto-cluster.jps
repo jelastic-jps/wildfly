@@ -78,8 +78,6 @@ actions:
   copyInternalCertificate:
     - cmd[cp]: sed -i 's/keystore-password=\"jelasticsecurekeypassforwildfly123\"/keystore-password=\"\$\{env.CTRL_KEYSTORE_PASS:jelasticsecurekeypassforwildfly123\}\"/g' /opt/wildfly/domain/configuration/host-slave.xml
     - cmd[${nodes.ctrl.master.id}]: sed -i 's/keystore-password=\"jelasticsecurekeypassforwildfly123\"/keystore-password=\"\$\{env.KEYSTORE_PASS:jelasticsecurekeypassforwildfly123\}\"/g' /opt/wildfly/domain/configuration/host-master.xml
-    - cmd[cp]: sed -i 's/clear-text=\"jelasticsecurekeypassforwildfly123\"/clear-text=\"\$\{env.CTRL_KEYSTORE_PASS:jelasticsecurekeypassforwildfly123\}\"/g' /opt/wildfly/domain/configuration/domain.xml 
-    - cmd[${nodes.ctrl.master.id}]: sed -i 's/clear-text=\"jelasticsecurekeypassforwildfly123\"/clear-text=\"\$\{env.KEYSTORE_PASS:jelasticsecurekeypassforwildfly123\}\"/g' /opt/wildfly/domain/configuration/domain.xml
     - cmd[${nodes.ctrl.master.id}]: encryptCert getEncFiles
     - cmd[${this:cp}]: encryptCert setEncFiles '${response.out}'
       user: root
