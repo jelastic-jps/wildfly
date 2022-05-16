@@ -155,7 +155,7 @@ actions:
     
   reloadMasterNode:
   - if (nodes.ctrl):
-    - cmd[${nodes.ctrl.master.id}]: jboss-cli.sh --timeout=30000 --connect controller=localhost:9999 --command="reload --host=master" 
+    - cmd[${nodes.ctrl.master.id}]: jboss-cli.sh --timeout=30000 --connect controller=localhost:4949 --command="reload --host=master" 
 
 onAfterClone:
   - script: delete MANIFEST.id; return {result:0, jps:MANIFEST};
