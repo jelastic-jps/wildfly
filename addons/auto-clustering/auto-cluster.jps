@@ -84,6 +84,7 @@ actions:
 
   buildCluster:
   - if (nodes.ctrl):
+    - cmd [ctrl]: mkdir -p /opt/wildfly/bin/lib/; ln -sfT /java_agent/jelastic-gc-agent.jar /opt/wildfly/bin/lib/jelastic-gc-agent.jar;
     - env.control.AddContainerEnvVars [${nodes.ctrl.master.id}]:
         vars: {"CTRL":"true", "WORKER_USER": "${globals.workerUser}", "WORKER_PASSWORD":"${globals.workerPswd}", "JBOSS_MODE":"domain", "JELASTIC_EXPOSE":"4949", "PASS":"${fn.password}", "KEYSTORE_PASS":"${globals.keystorePass}"}
     - cmd [ctrl]: service wildfly restart; service jelinit restart
