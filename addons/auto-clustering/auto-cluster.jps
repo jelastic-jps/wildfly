@@ -127,6 +127,7 @@ actions:
       vars: {"WEBROOT":"/opt/wildfly/domain/servers/worker/tmp/"}
 
   setupCtrl:
+  - cmd [ctrl]: mkdir -p /opt/wildfly/bin/lib/; ln -sfT /java_agent/jelastic-gc-agent.jar /opt/wildfly/bin/lib/jelastic-gc-agent.jar;
   - addWokerUser:
     ctrlNodeId: ${nodes.ctrl.master.id}
   - linkContainers:
