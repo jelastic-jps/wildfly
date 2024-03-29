@@ -52,9 +52,6 @@ onAfterServiceScaleOut[bl]:
 onAfterSetCloudletCount[cp]:
   if (nodes.ctrl): setJavaMemoryOpts
 
-onAfterRestartNode[cp]:
-- setRedirectToController: ${nodes.cp.join(id,)}
-
 onAfterMigrate:
 - cmd [ctrl]: jem service restart
 - cmd [cp]: jem service restart
