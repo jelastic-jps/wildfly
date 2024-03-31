@@ -35,6 +35,10 @@ onAfterServiceScaleOut[cp]:
 - setNodeDisplayName[cp]: Worker
 - if (nodes.ctrl): setJavaMemoryOpts
 
+onAfterRestartNode[cp]:
+- cmd [${nodes.cp.master.id}]: |-
+    jem service reload || true;
+
 onAfterScaleIn[cp]:
   - if (nodes.ctrl):
     - reloadMasterNode
