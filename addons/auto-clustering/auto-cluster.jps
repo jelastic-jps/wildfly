@@ -55,8 +55,8 @@ onAfterSetCloudletCount[cp]:
 onAfterRestartNode[cp]:
 - setRedirectToController: ${nodes.cp.join(id,)}
 - cmd [${nodes.cp.master.id}]: |-
-    sleep 5; 
-    jem service reload;
+    sleep 8; 
+    jem service reload || true;
 
 onAfterMigrate:
 - cmd [ctrl]: jem service restart
