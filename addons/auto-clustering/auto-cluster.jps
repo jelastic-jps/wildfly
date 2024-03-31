@@ -152,7 +152,9 @@ actions:
       return { result: 0, onAfterReturn: {"env.control.LinkDockerNodes": links} };
 
   setRedirectToController:
-    cmd[${this}]: sudo setAdminPanelRedirect
+    cmd[${this}]: |-
+      sudo setAdminPanelRedirect; 
+      jem firewall save &>/dev/null;
     
   uninstallJavaAddon:
     cmd[${this}]: \[ -n "$(find /usr/ -name java.orig)" \] && /usr/java/latest/bin/java --uninstall || true; 
